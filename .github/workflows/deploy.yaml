@@ -13,10 +13,14 @@ concurrency:
 jobs:
     template-upload:
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
 
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
 
             - name: Install Node.js
               uses: actions/setup-node@v4
@@ -35,6 +39,11 @@ jobs:
               uses: tj-actions/changed-files@v41
               with:
                   files: |
+                      .github/workflows/deploy.yaml
+                      .nvmrc
+                      package.json
+                      internal/scripts/generate-integrations-index.mjs
+                      internal/scripts/zero/compileIntegrationsJson.ts
                       integrations/*
                       integrations/**/*
 
@@ -90,5 +99,4 @@ jobs:
                     fi
 
                     aws s3 sync $dir s3://${{ secrets.AWS_BUCKET_NAME }}/templates-zero/$integration
-                    aws s3 sync integrations/$integration/build s3://${{ secrets.AWS_BUCKET_NAME }}/templates-zero/$integration/build
                   done

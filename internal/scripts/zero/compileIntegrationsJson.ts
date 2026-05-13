@@ -62,6 +62,20 @@ async function main(): Promise<void> {
 
     const integrationsPath = join(root, 'integrations');
 
+    console.log(chalk.gray('─'.repeat(40)));
+    console.log(`Running: ${chalk.blue('node internal/scripts/generate-integrations-index.mjs')}`);
+    console.log(chalk.gray('─'.repeat(40)));
+
+    try {
+        execSync('node internal/scripts/generate-integrations-index.mjs', {
+            cwd: root,
+            stdio: 'inherit'
+        });
+    } catch (error) {
+        console.error(`${chalk.red('err')} index generation failed: ${errorToString(error)}`);
+        process.exit(1);
+    }
+
     // Step 1: Run npx nango compile from the integrations directory
     console.log();
     console.log(chalk.gray('─'.repeat(40)));
@@ -74,6 +88,7 @@ async function main(): Promise<void> {
             stdio: 'inherit',
             env: {
                 ...process.env,
+                NANGO_CLI_DEPENDENCY_UPDATE: 'false',
                 NANGO_CLI_UPGRADE_MODE: 'ignore'
             }
         });
